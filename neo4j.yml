@@ -10,7 +10,7 @@ base:
       Neo4j is a NoSQL database, which means that it does not use a traditional relational database schema to organize and store data. Instead, it uses a flexible schema that allows for dynamic data structures and relationships. Neo4j supports ACID transactions, which means that it ensures data consistency and reliability even in the face of failures or concurrency issues.
 
       Neo4j provides a query language called Cypher that is specifically designed for graph data. Cypher is a declarative language that allows users to express complex queries in a concise and intuitive manner. Neo4j also offers a number of APIs and tools for developers, including a Java API, a REST API, and a web-based interface called the Neo4j Browser.
-      
+
       Overall, Neo4j is a powerful and flexible tool for managing highly connected data, and it has become increasingly popular in recent years as more and more applications require the ability to handle complex relationships and data structures.
     website: https://neo4j.com/
     publisher: monk.io
@@ -49,11 +49,6 @@ db:
     image:
       type: string
       value: 5.5
-  containers:
-    db:
-      ports:
-        - <- `${db_port}:7687`
-        - <- `${admin_port}:7474`
   services:
     admin:
       port: 7474
