@@ -1,21 +1,32 @@
 ---
 namespace: neo4j
-db:
+base:
   metadata:
     defines: metadata
     name: Neo4j Graph Data Platform
-    description: | 
+    description: |
       Neo4j is a highly scalable and efficient graph database management system that is designed to store and process highly connected data. It is based on the graph data model, which represents data as nodes (entities or objects) and edges (relationships or connections) between those nodes. Neo4j is optimized for handling complex, highly interconnected datasets and is often used in applications such as social networking, recommendation engines, and fraud detection.
 
       Neo4j is a NoSQL database, which means that it does not use a traditional relational database schema to organize and store data. Instead, it uses a flexible schema that allows for dynamic data structures and relationships. Neo4j supports ACID transactions, which means that it ensures data consistency and reliability even in the face of failures or concurrency issues.
 
       Neo4j provides a query language called Cypher that is specifically designed for graph data. Cypher is a declarative language that allows users to express complex queries in a concise and intuitive manner. Neo4j also offers a number of APIs and tools for developers, including a Java API, a REST API, and a web-based interface called the Neo4j Browser.
-
+      
       Overall, Neo4j is a powerful and flexible tool for managing highly connected data, and it has become increasingly popular in recent years as more and more applications require the ability to handle complex relationships and data structures.
     website: https://neo4j.com/
     publisher: monk.io
     icon: https://dist.neo4j.com/wp-content/uploads/20210423072428/neo4j-logo-2020-1.svg
+  containers:
+    db:
+      image: neo4j
+      image-tag: <- `${image}`
+      paths:
+        - <- `${monk-volume-path}/neo4j/data:/data`
+        - <- `${monk-volume-path}/neo4j/conf:/conf`
+        - <- `${monk-volume-path}/neo4j/import:/import`
+        - <- `${monk-volume-path}/neo4j/plugins:/plugins`
+db:
   defines: runnable
+  inherits: neo4j/base
   variables:
     page_cache_size:
       env: NEO4J_dbms_memory_pagecache_size
@@ -40,16 +51,9 @@ db:
       value: 5.5
   containers:
     db:
-      image: neo4j
-      image-tag: <- `${image}`
       ports:
-         - <- `${db_port}:7687`
-         - <- `${admin_port}:7474`
-      paths:
-        - <- `${monk-volume-path}/neo4j/data:/data`
-        - <- `${monk-volume-path}/neo4j/conf:/conf`
-        - <- `${monk-volume-path}/neo4j/import:/import`
-        - <- `${monk-volume-path}/neo4j/plugins:/plugins`
+        - <- `${db_port}:7687`
+        - <- `${admin_port}:7474`
   services:
     admin:
       port: 7474
