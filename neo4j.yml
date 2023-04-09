@@ -42,6 +42,9 @@ db:
     db:
       image: neo4j
       image-tag: <- `${image}`
+      ports:
+         - <- `${db_port}:7687`
+         - <- `${admin_port}:7474`
       paths:
         - <- `${monk-volume-path}/neo4j/data:/data`
         - <- `${monk-volume-path}/neo4j/conf:/conf`

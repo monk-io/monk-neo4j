@@ -53,7 +53,6 @@ foo@bar:~$ monk run neo4j/db
 | db_port         | Neo4j database port        | 7687                      |
 | admin_port      | Neo4j admin interface port | 7474                      |
 | image           | Docker image tag           | 5.5                       |
-| volume_local    | Volume path                | ${monk-volume-path}/neo4j |
 | page_cache_size | Page cache size            | 1G                        |
 | heap_size       | Heap size                  | 512M                      |
 | max_heap_size   | Max heap size              | 512M                      |
