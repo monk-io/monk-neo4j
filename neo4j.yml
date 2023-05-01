@@ -59,4 +59,3 @@ db:
       port: 7687
       container: db
       protocol: tcp
-      host-port: <- `${db_port}`
