@@ -1,0 +1,150 @@
+---
+title: Neo4j
+description: Ready-to-run Neo4j container template you can run directly or inherit to integrate a graph database into your stack.
+primary_category: database
+tags: [neo4j, graph-database, database, template, runnable, cypher, relationships]
+integration_type: template
+hosting_models: [self-hosted]
+website_url: https://neo4j.com/
+docs_url: https://neo4j.com/docs/
+publisher: monk.io
+---
+
+## Overview
+
+This template provides a production‑ready Neo4j instance as a Monk runnable. You can:
+
+- Run it directly to get a managed Neo4j graph database with sensible defaults
+- Inherit it in your own runnable to seamlessly add graph data modeling and querying to your stack
+
+It exposes Neo4j on ports 7474 (HTTP), 7687 (Bolt), persists data to a host volume, and provides a browser-based interface for querying and visualization.
+
+## What this template manages
+
+- Neo4j container (`neo4j` image, configurable tag)
+- Network services on ports 7474 (HTTP), 7473 (HTTPS), 7687 (Bolt)
+- Persistent volumes for data, configuration, imports, and plugins
+- Browser-based interface for queries and graph visualization
+- Memory configuration for page cache and heap
+
+## Quick start (run directly)
+
+1) Load templates
+
+```bash
+monk load MANIFEST
+```
+
+2) Run Neo4j with defaults
+
+```bash
+monk run neo4j/db
+```
+
+3) Customize configuration (recommended via inheritance)
+
+Running directly uses the defaults defined in this template's `variables`. Secrets added with `monk secrets add` will not affect this runnable unless you inherit it and reference those secrets.
+
+- Preferred: inherit and replace variables with `secret("...")` as shown below.
+- Alternative: fork/clone and edit the `variables` in `neo4j.yml`, then `monk load MANIFEST` and run.
+
+Once started, access the Neo4j Browser at `http://localhost:7474` and connect using Bolt protocol on port 7687.
+
+## Configuration
+
+Key variables you can customize in this template:
+
+```yaml
+variables:
+  image: "5.5"                    # Neo4j container image tag
+  page_cache_size: "1G"           # Page cache memory (env: NEO4J_dbms_memory_pagecache_size)
+  heap_initial_size: "512M"       # Initial JVM heap size (env: NEO4J_dbms_memory_heap_initial__size)
+  heap_max_size: "512M"           # Maximum JVM heap size (env: NEO4J_dbms_memory_heap_max__size)
+  db_port: 7687                   # Bolt protocol port
+  admin_port: 7474                # HTTP browser interface port
+```
+
+Data is persisted under `${monk-volume-path}/neo4j` on the host:
+- `/data` - Graph database files
+- `/conf` - Configuration files
+- `/import` - CSV and data import files
+- `/plugins` - Additional plugins and extensions
+
+## Use by inheritance (recommended for apps)
+
+Inherit the Neo4j runnable in your application and declare a connection. Example:
+
+```yaml
+namespace: myapp
+graphdb:
+  defines: runnable
+  inherits: neo4j/db
+api:
+  defines: runnable
+  containers:
+    api:
+      image: myorg/api
+  connections:
+    database:
+      runnable: graphdb
+      service: db
+  variables:
+    neo4j-uri:
+      value: <- `bolt://${connection-hostname("database")}:7687`
+    neo4j-user:
+      value: <- secret("neo4j-user")
+    neo4j-password:
+      value: <- secret("neo4j-password")
+```
+
+Then set the secrets once and run your app group:
+
+```bash
+monk secrets add -g neo4j-user="neo4j"
+monk secrets add -g neo4j-password="STRONG_PASSWORD"
+monk run myapp/api
+```
+
+## Ports and connectivity
+
+- Service: `admin` on TCP port `7474` (HTTP browser interface)
+- Service: `db` on TCP port `7687` (Bolt protocol)
+- From other runnables in the same process group, use `connection-hostname("<connection-name>")` to resolve the database host.
+
+## Persistence and configuration
+
+- Data path: `${monk-volume-path}/neo4j/data:/data`
+- Config path: `${monk-volume-path}/neo4j/conf:/conf`
+- Import path: `${monk-volume-path}/neo4j/import:/import`
+- Plugins path: `${monk-volume-path}/neo4j/plugins:/plugins`
+- You can drop additional configuration files into the config path to customize Neo4j settings.
+
+## Features
+
+- Native graph storage and processing
+- Cypher query language for intuitive graph queries
+- ACID transactions for data consistency
+- High performance graph traversals
+- Graph algorithms library (APOC and Graph Data Science)
+- Visual query builder and graph visualization
+- Full-text search capabilities
+- Role-based access control
+
+## Related templates
+
+- See other templates in this repository for complementary services
+- Combine with monitoring tools (`prometheus-grafana/`) for observability
+- Integrate with your application stack as needed
+
+## Troubleshooting
+
+- If authentication fails, check that you're using the correct credentials. Default username is `neo4j` and the password must be set on first login.
+- Ensure the host volumes are writable by the container user.
+- For memory issues, adjust `page_cache_size`, `heap_initial_size`, and `heap_max_size` based on your dataset size.
+- Check logs:
+
+```bash
+monk logs -l 500 -f neo4j/db
+```
+
+- For connection issues, verify the Bolt port (7687) is accessible and not blocked by firewall rules.
