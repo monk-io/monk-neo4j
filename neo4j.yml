@@ -48,7 +48,7 @@ db:
       value: 7474
     image:
       type: string
-      value: 5.5
+      value: latest
   services:
     admin:
       port: 7474
